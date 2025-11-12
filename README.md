@@ -129,3 +129,178 @@
 4. Start with file navigation, then move to system info, then networking and package management.
 
 ---
+
+#------------------------------------------------------------------------------ EXTRAS
+
+---
+
+# 🔹 Netstat & SS Tutorial
+
+---
+
+## 1️⃣ `netstat` (Network Statistics)
+
+`netstat` is a classic command for displaying **network connections, routing tables, interface stats, etc.**
+
+### **Basic Usage**
+
+```bash
+netstat
+```
+
+* Shows **all active connections** on your system (TCP, UDP, UNIX sockets, etc.)
+
+---
+
+### **Common Options**
+
+| Option | Description                                           |
+| ------ | ----------------------------------------------------- |
+| `-a`   | Show **all connections**, listening and non-listening |
+| `-t`   | Show only **TCP connections**                         |
+| `-u`   | Show only **UDP connections**                         |
+| `-l`   | Show only **listening ports**                         |
+| `-n`   | Show **numeric addresses/ports** instead of hostnames |
+| `-p`   | Show **process ID and name** using the connection     |
+| `-r`   | Show **routing table**                                |
+| `-i`   | Show **network interface stats**                      |
+
+---
+
+### **Example: Show all listening TCP ports**
+
+```bash
+netstat -tln
+```
+
+**Explanation:**
+
+* `-t` → TCP only
+* `-l` → listening ports
+* `-n` → numeric output
+
+**Sample Output:**
+
+```
+Proto Recv-Q Send-Q Local Address           Foreign Address         State
+tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN
+tcp6       0      0 :::80                   :::*                    LISTEN
+```
+
+**Fields:**
+
+* `Proto` → Protocol (TCP/UDP)
+* `Recv-Q` / `Send-Q` → Queue sizes for incoming/outgoing data
+* `Local Address` → IP and port on your machine
+* `Foreign Address` → Remote IP and port
+* `State` → Status (LISTEN, ESTABLISHED, TIME_WAIT, etc.)
+
+---
+
+### **Show process using ports**
+
+```bash
+sudo netstat -tulpn
+```
+
+* `-t` TCP, `-u` UDP
+* `-l` Listening
+* `-p` Show PID/program name
+* `-n` Numeric
+
+---
+
+### ⚠️ Note:
+
+* On **modern Linux**, `netstat` is **deprecated** in favor of `ss`.
+* `net-tools` package is needed for `netstat` on some distributions.
+
+---
+
+## 2️⃣ `ss` (Socket Statistics)
+
+`ss` is **faster and more powerful** than `netstat`. It can display **detailed socket info** quickly.
+
+### **Basic Usage**
+
+```bash
+ss
+```
+
+* Shows **all active connections**.
+
+---
+
+### **Common Options**
+
+| Option | Description                             |
+| ------ | --------------------------------------- |
+| `-t`   | TCP connections                         |
+| `-u`   | UDP connections                         |
+| `-l`   | Listening sockets only                  |
+| `-n`   | Show numeric addresses/ports            |
+| `-p`   | Show process using socket               |
+| `-a`   | All sockets (listening + non-listening) |
+| `-s`   | Summary of socket statistics            |
+
+---
+
+### **Example: Show all listening TCP ports**
+
+```bash
+ss -tln
+```
+
+**Sample Output:**
+
+```
+State      Recv-Q Send-Q Local Address:Port  Peer Address:Port
+LISTEN     0      128   0.0.0.0:22         0.0.0.0:*
+LISTEN     0      128   [::]:80            [::]:*
+```
+
+**Fields:**
+
+* `State` → Socket state (LISTEN, ESTAB, TIME-WAIT, etc.)
+* `Recv-Q` / `Send-Q` → Queue sizes
+* `Local Address:Port` → Your machine’s IP and port
+* `Peer Address:Port` → Remote machine’s IP and port
+
+---
+
+### **Show process using ports**
+
+```bash
+sudo ss -tulpn
+```
+
+* Works exactly like `netstat -tulpn`
+* Shows **PID and program name** listening or connected
+
+---
+
+### **Summary: netstat vs ss**
+
+| Feature                     | `netstat`              | `ss`                   |
+| --------------------------- | ---------------------- | ---------------------- |
+| Speed                       | Slower                 | Faster                 |
+| Modern Linux                | Deprecated             | Recommended            |
+| Output                      | Standard, older format | Cleaner, more detailed |
+| Example for listening ports | `netstat -tln`         | `ss -tln`              |
+
+---
+
+### **Practical Tips**
+
+1. Use `ss -tulpn` to check **which process is using a port**.
+2. Use `ss -s` to **get socket summary** for debugging network issues.
+3. Combine with `grep` to filter, e.g.,
+
+   ```bash
+   ss -tulpn | grep :22
+   ```
+
+   → Check if SSH is running on port 22
+
+---
+
