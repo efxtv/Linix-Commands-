@@ -92,6 +92,16 @@ Device files appear in:
 ```
 /dev/
 ```
+### Understanding /dev — The Linux Device Directory
+
+/dev stands for device, and it contains device nodes that let software communicate with hardware through the kernel.
+
+When you access 
+* /dev/sda
+* /dev/tty, or /dev/video0
+  
+you’re actually talking to the driver for that piece of hardware — not just reading a file.
+
 
 To list devices:
 
