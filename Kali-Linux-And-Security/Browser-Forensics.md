@@ -12,9 +12,14 @@
 5. [Windows - Firefox-Based Browsers](#windows---firefox-based-browsers)
 6. [Windows - Microsoft Edge & Legacy](#windows---microsoft-edge--legacy)
 7. [Windows - Other Browsers](#windows---other-browsers)
-8. [Quick Reference Commands](#quick-reference-commands)
-9. [Session File Locations](#session-file-locations)
-10. [Cross-Platform Reference](#cross-platform-reference)
+8. [Android - Chromium-Based Browsers](#android---chromium-based-browsers)
+9. [Android - Session Files](#android---session-files-inside-apk-data)
+10. [Android - ADB Commands](#android---extracting-browser-data-adb-commands)
+11. [Android - SQLite Queries](#android---sqlite-database-queries)
+12. [Android - Package Names](#android---complete-package-name-reference)
+13. [Quick Reference Commands](#quick-reference-commands)
+14. [Session File Locations](#session-file-locations)
+15. [Cross-Platform Reference](#cross-platform-reference)
 
 ---
 
@@ -477,4 +482,484 @@ Get-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows\Shell\Associations\UrlAssocia
 
 ---
 
-*Generated for Browser Forensics & Session Analysis - Linux & Windows*
+*Generated for Browser Forensics & Session Analysis - Linux, Windows & Android*
+
+---
+
+# ANDROID BROWSERS
+
+---
+
+## Android Browser Storage Overview
+
+On Android, browser data is stored in different locations depending on the browser type:
+
+| Storage Type | Path | Description |
+|--------------|------|-------------|
+| **App Private** | `/data/data/<package>/` | Private app data (requires root) |
+| **App External** | `/sdcard/Android/data/<package>/` | External storage |
+| **User Data** | `/data/user/<uid>/<package>/` | Android 6+ multi-user |
+
+### Key Paths
+- **Rooted Devices**: `/data/data/com.android.chrome/`
+- **App Data (Unrooted)**: `/sdcard/Android/data/<package>/`
+- **ChromeADB**: Can use `adb backup` or `adb shell dumpsys`
+
+---
+
+## Android - Chromium-Based Browsers
+
+| Browser | Package Name | Private Data Path | External Data Path |
+|---------|-------------|-------------------|-------------------|
+| **Chrome** | `com.android.chrome` | `/data/data/com.android.chrome/` | `/sdcard/Android/data/com.android.chrome/` |
+| **Chrome Beta** | `com.chrome.beta` | `/data/data/com.chrome.beta/` | `/sdcard/Android/data/com.chrome.beta/` |
+| **Chrome Dev** | `com.chrome.dev` | `/data/data/com.chrome.dev/` | `/sdcard/Android/data/com.chrome.dev/` |
+| **Chrome Canary** | `com.chrome.canary` | `/data/data/com.chrome.canary/` | `/sdcard/Android/data/com.chrome.canary/` |
+| **Chromium** | `org.chromium.chromeworld` | `/data/data/org.chromium.chromeworld/` | `/sdcard/Android/data/org.chromium.chromeworld/` |
+| **Chromium (Official)** | `org.chromium.base` | `/data/data/org.chromium.base/` | `/sdcard/Android/data/org.chromium.base/` |
+| **Brave** | `com.brave.browser` | `/data/data/com.brave.browser/` | `/sdcard/Android/data/com.brave.browser/` |
+| **Brave Beta** | `com.brave.browser_beta` | `/data/data/com.brave.browser_beta/` | `/sdcard/Android/data/com.brave.browser_beta/` |
+| **Brave Nightly** | `com.brave.browser_nightly` | `/data/data/com.brave.browser_nightly/` | `/sdcard/Android/data/com.brave.browser_nightly/` |
+| **Vivaldi** | `com.vivaldi.browser` | `/data/data/com.vivaldi.browser/` | `/sdcard/Android/data/com.vivaldi.browser/` |
+| **Vivaldi Beta** | `com.vivaldi.browser.beta` | `/data/data/com.vivaldi.browser.beta/` | `/sdcard/Android/data/com.vivaldi.browser.beta/` |
+| **Opera** | `com.opera.browser` | `/data/data/com.opera.browser/` | `/sdcard/Android/data/com.opera.browser/` |
+| **Opera Beta** | `com.opera.browser.beta` | `/data/data/com.opera.browser.beta/` | `/sdcard/Android/data/com.opera.browser.beta/` |
+| **Opera GX** | `com.opera.browser.gx` | `/data/data/com.opera.browser.gx/` | `/sdcard/Android/data/com.opera.browser.gx/` |
+| **Opera Touch** | `com.opera.browser.touch` | `/data/data/com.opera.browser.touch/` | `/sdcard/Android/data/com.opera.browser.touch/` |
+| **Opera Mini** | `com.opera.mini.android` | `/data/data/com.opera.mini.android/` | `/sdcard/Android/data/com.opera.mini.android/` |
+| **Microsoft Edge** | `com.microsoft.emmx` | `/data/data/com.microsoft.emmx/` | `/sdcard/Android/data/com.microsoft.emmx/` |
+| **Microsoft Edge Beta** | `com.microsoft.emmx.beta` | `/data/data/com.microsoft.emmx.beta/` | `/sdcard/Android/data/com.microsoft.emmx.beta/` |
+| **Microsoft Edge Dev** | `com.microsoft.emmx.dev` | `/data/data/com.microsoft.emmx.dev/` | `/sdcard/Android/data/com.microsoft.emmx.dev/` |
+| **Firefox** | `org.mozilla.firefox` | `/data/data/org.mozilla.firefox/` | `/sdcard/Android/data/org.mozilla.firefox/` |
+| **Firefox Beta** | `org.mozilla.firefox_beta` | `/data/data/org.mozilla.firefox_beta/` | `/sdcard/Android/data/org.mozilla.firefox_beta/` |
+| **Firefox Nightly** | `org.mozilla.fenix` | `/data/data/org.mozilla.fenix/` | `/sdcard/Android/data/org.mozilla.fenix/` |
+| **Firefox Focus** | `org.mozilla.focus` | `/data/data/org.mozilla.focus/` | `/sdcard/Android/data/org.mozilla.focus/` |
+| **Firefox Klar** | `org.mozilla.klar` | `/data/data/org.mozilla.klar/` | `/sdcard/Android/data/org.mozilla.klar/` |
+| **Firefox TV** | `org.mozilla.tv.firefox` | `/data/data/org.mozilla.tv.firefox/` | `/sdcard/Android/data/org.mozilla.tv.firefox/` |
+| **Firefox Lite** | `org.mozilla.rocket` | `/data/data/org.mozilla.rocket/` | `/sdcard/Android/data/org.mozilla.rocket/` |
+| **DuckDuckGo** | `com.duckduckgo.mobile.android` | `/data/data/com.duckduckgo.mobile.android/` | `/sdcard/Android/data/com.duckduckgo.mobile.android/` |
+| **Bromite** | `org.bromite.cromite` | `/data/data/org.bromite.cromite/` | `/sdcard/Android/data/org.bromite.cromite/` |
+| **Bromite SystemWebView** | `org.bromite.systemwebview` | `/data/data/org.bromite.systemwebview/` | `/sdcard/Android/data/org.bromite.systemwebview/` |
+| **Kiwi Browser** | `com.kiwibrowser.browser` | `/data/data/com.kiwibrowser.browser/` | `/sdcard/Android/data/com.kiwibrowser.browser/` |
+| **Kiwi Lite** | `com.kiwibrowser.lite` | `/data/data/com.kiwibrowser.lite/` | `/sdcard/Android/data/com.kiwibrowser.lite/` |
+| **Yandex Browser** | `com.yandex.browser` | `/data/data/com.yandex.browser/` | `/sdcard/Android/data/com.yandex.browser/` |
+| **Yandex Browser Beta** | `com.yandex.browser.beta` | `/data/data/com.yandex.browser.beta/` | `/sdcard/Android/data/com.yandex.browser.beta/` |
+| **Yandex Browser Lite** | `com.yandex.browser.light` | `/data/data/com.yandex.browser.light/` | `/sdcard/Android/data/com.yandex.browser.light/` |
+| **Samsung Internet** | `com.sec.android.app.sbrowser` | `/data/data/com.sec.android.app.sbrowser/` | `/sdcard/Android/data/com.sec.android.app.sbrowser/` |
+| **Samsung Internet Beta** | `com.sec.android.app.sbrowser.beta` | `/data/data/com.sec.android.app.sbrowser.beta/` | `/sdcard/Android/data/com.sec.android.app.sbrowser.beta/` |
+| **UC Browser** | `com.UCMobile.intl` | `/data/data/com.UCMobile.intl/` | `/sdcard/Android/data/com.UCMobile.intl/` |
+| **UC Browser Mini** | `com.ucmobile.browser` | `/data/data/com.ucmobile.browser/` | `/sdcard/Android/data/com.ucmobile.browser/` |
+| **UC Browser Turbo** | `com.translate.uploader` | `/data/data/com.translate.uploader/` | `/sdcard/Android/data/com.translate.uploader/` |
+| **QQ Browser** | `com.tencent.mtt` | `/data/data/com.tencent.mtt/` | `/sdcard/Android/data/com.tencent.mtt/` |
+| **QQ Browser Lite** | `com.tencent.qbnet` | `/data/data/com.tencent.qbnet/` | `/sdcard/Android/data/com.tencent.qbnet/` |
+| **Sogou Browser** | `com.sogou.msa.mrsd` | `/data/data/com.sogou.msa.mrsd/` | `/sdcard/Android/data/com.sogou.msa.mrsd/` |
+| **Baidu Browser** | `com.baidu.browser.core` | `/data/data/com.baidu.browser.core/` | `/sdcard/Android/data/com.baidu.browser.core/` |
+| **Baidu Browser Lite** | `com.hicloud.android.swift` | `/data/data/com.hicloud.android.swift/` | `/sdcard/Android/data/com.hicloud.android.swift/` |
+| **猎豹浏览器** | `com.ijinshan.browser` | `/data/data/com.ijinshan.browser/` | `/sdcard/Android/data/com.ijinshan.browser/` |
+| **360 Browser** | `com.qihoo.browser` | `/data/data/com.qihoo.browser/` | `/sdcard/Android/data/com.qihoo.browser/` |
+| **360 Security Browser** | `com.huawei.browser` | `/data/data/com.huawei.browser/` | `/sdcard/Android/data/com.huawei.browser/` |
+| **Maxthon** | `com.maxthon.browser` | `/data/data/com.maxthon.browser/` | `/sdcard/Android/data/com.maxthon.browser/` |
+| **AVG Browser** | `com.antivirus` | `/data/data/com.antivirus/` | `/sdcard/Android/data/com.antivirus/` |
+| **Avast Browser** | `com.avast.android.browser` | `/data/data/com.avast.android.browser/` | `/sdcard/Android/data/com.avast.android.browser/` |
+| **CM Browser** | `com.ksmobile.cleandroid` | `/data/data/com.ksmobile.cleandroid/` | `/sdcard/Android/data/com.ksmobile.cleandroid/` |
+| **Nox Browser** | `com.bignox.browser` | `/data/data/com.bignox.browser/` | `/sdcard/Android/data/com.bignox.browser/` |
+| **MEmu Browser** | `com.microvirt.browser` | `/data/data/com.microvirt.browser/` | `/sdcard/Android/data/com.microvirt.browser/` |
+| **BlueStacks Browser** | `com.bluestacks.browser` | `/data/data/com.bluestacks.browser/` | `/sdcard/Android/data/com.bluestacks.browser/` |
+| **ALOE Browser** | `com.alohamobile.allinone` | `/data/data/com.alohamobile.allinone/` | `/sdcard/Android/data/com.alohamobile.allinone/` |
+| **Beaker Browser** | `com.beaker.browser` | `/data/data/com.beaker.browser/` | `/sdcard/Android/data/com.beaker.browser/` |
+| **FOSS Browser** | `me.d潇.com` | `/data/data/me.d潇.com/` | `/sdcard/Android/data/me.d潇.com/` |
+| **IceCatMobile** | `org.gnu.icecat` | `/data/data/org.gnu.icecat/` | `/sdcard/Android/data/org.gnu.icecat/` |
+| **Ghostery Browser** | `com.ghostery.android.dolphin` | `/data/data/com.ghostery.android.dolphin/` | `/sdcard/Android/data/com.ghostery.android.dolphin/` |
+| **Orbot (Tor)** | `org.torproject.android` | `/data/data/org.torproject.android/` | `/sdcard/Android/data/org.torproject.android/` |
+| **Onion Browser** | `com.guskastl.g浏览器` | `/data/data/com.guskastl.g浏览器/` | `/sdcard/Android/data/com.guskastl.g浏览器/` |
+| **Browsec VPN** | `com.browsec.vpn` | `/data/data/com.browsec.vpn/` | `/sdcard/Android/data/com.browsec.vpn/` |
+
+---
+
+## Android - Session Files Inside APK Data
+
+### Chrome/Chromium Data Structure
+```
+/data/data/com.android.chrome/
+├── app_chrome/
+│   ├── Default/
+│   │   ├── History
+│   │   ├── History-journal
+│   │   ├── Cookies
+│   │   ├── Cookies-journal
+│   │   ├── Bookmarks
+│   │   ├── Login Data
+│   │   ├── Login Data-journal
+│   │   ├── Web Data
+│   │   ├── Web Data-journal
+│   │   ├── Sessions/
+│   │   │   ├── <session_files>
+│   │   │   ├── _CACHE_001_/
+│   │   │   └── _CACHE_002_/
+│   │   └── Local Storage/
+│   ├── Local State
+│   └── preferences
+├── app_webview/
+│   └── WebData/
+└── shared_prefs/
+    └── chrome_default_client_preferences.xml
+```
+
+### Firefox Data Structure
+```
+/data/data/org.mozilla.firefox/
+├── files/
+│   └── profiles/
+│       └── <profile_id>/
+│           ├── places.sqlite (history)
+│           ├── cookies.sqlite
+│           ├── webappsstore.sqlite
+│           ├── sessionstore.jsonlz4
+│           ├── sessionstore-backups/
+│           │   ├── recovery.jsonlz4
+│           │   └── previous.jsonlz4
+│           └── cache2/
+│               └── entries/
+├── cache/
+├── shared_prefs/
+└── lib/
+```
+
+### Samsung Internet Data Structure
+```
+/data/data/com.sec.android.app.sbrowser/
+├── files/
+│   └── pml/
+│       └── Sessions/
+├── databases/
+│   ├── sbrowser.db
+│   └── sbrowser_cache.db
+├── shared_prefs/
+│   └── com.sec.android.app.sbrowser_preferences.xml
+└── lib/
+```
+
+---
+
+## Android - Extracting Browser Data (ADB Commands)
+
+### Prerequisites
+```bash
+# Enable USB debugging on Android device
+# Connect device via USB
+adb devices
+```
+
+### Pull Browser Data (Root Required)
+```bash
+# Chrome
+adb pull /data/data/com.android.chrome/ ./chrome_data/
+
+# Firefox
+adb pull /data/data/org.mozilla.firefox/ ./firefox_data/
+
+# Samsung Internet
+adb pull /data/data/com.sec.android.app.sbrowser/ ./samsung_data/
+```
+
+### Pull External Data (No Root Required)
+```bash
+# Chrome external data
+adb pull /sdcard/Android/data/com.android.chrome/ ./chrome_external/
+
+# Firefox external data
+adb pull /sdcard/Android/data/org.mozilla.firefox/ ./firefox_external/
+```
+
+### Use App Data Extractor (No Root)
+```bash
+# Install APK via ADB
+adb install app_data_extractor.apk
+
+# Or use Titanium Backup (requires root)
+# Or use Swift Backup (no root, requires Shizuku)
+```
+
+### ADB Backup Method (No Root)
+```bash
+# Backup Chrome (encrypted)
+adb backup com.android.chrome -f chrome_backup.ab
+
+# Extract backup
+dd if=chrome_backup.ab bs=1 skip=24 | openssl zlib -d > chrome_backup.tar
+
+# Or use Android Backup Extractor
+java -jar abe.jar unpack chrome_backup.ab chrome_backup.tar
+```
+
+### Dump Browser Data with Shizuku
+```bash
+# Grant Shizuku permissions via ADB
+adb shell sh /storage/emulated/0/Android/data/.../shizuku.sh
+
+# Then use apps with Shizuku support
+```
+
+---
+
+## Android - SQLite Database Queries
+
+### Chrome/Chromium History
+```sql
+-- Get browsing history
+SELECT url, title, visit_count, last_visit_time 
+FROM urls 
+ORDER BY last_visit_time DESC;
+
+-- Get downloads
+SELECT tab_url, target_path, start_time, end_time 
+FROM downloads;
+
+-- Get cookies
+SELECT host, name, value, path, expires_utc 
+FROM cookies;
+
+-- Get bookmarks
+SELECT url, title FROM bookmarks;
+
+-- Get saved passwords
+SELECT origin_url, username_value, password_value 
+FROM logins;
+```
+
+### Firefox Places (History)
+```sql
+-- Get history
+SELECT url, title, visit_count, last_visit_date 
+FROM moz_places 
+ORDER BY last_visit_date DESC;
+
+-- Get cookies
+SELECT host, name, value, path, expiry 
+FROM moz_cookies;
+
+-- Get bookmarks
+SELECT url, title, parent FROM moz_bookmarks;
+```
+
+### Samsung Internet
+```sql
+-- Get history
+SELECT url, title, date FROM pml_history;
+
+-- Get bookmarks
+SELECT url, title FROM pml_bookmark;
+
+-- Get saved passwords
+SELECT url, username, password FROM pml_passwords;
+```
+
+---
+
+## Android - Key Session Files by Browser
+
+| Browser | Session File | Format |
+|---------|-------------|--------|
+| **Chrome** | `Sessions/_CACHE_001_/`, `Sessions/_CACHE_002_/` | Binary (Custom) |
+| **Firefox** | `sessionstore.jsonlz4` | LZ4 compressed JSON |
+| **Firefox Focus** | `sessionstore.jsonlz4` | LZ4 compressed JSON |
+| **Samsung Internet** | `files/pml/Sessions/` | JSON |
+| **Brave** | `Sessions/` | Binary (Custom) |
+| **Vivaldi** | `Sessions/` | Binary (Custom) |
+| **Opera** | `sessions/` | Binary |
+| **UC Browser** | `UCCache4/` | Binary |
+| **Kiwi Browser** | `Sessions/` | Binary |
+| **Yandex** | `Sessions/` | Binary |
+
+---
+
+## Android - Backup File Locations
+
+| Browser | Backup Path |
+|---------|------------|
+| **Chrome Bookmarks** | `/data/data/com.android.chrome/app_chrome/Default/Bookmarks` |
+| **Chrome Preferences** | `/data/data/com.android.chrome/shared_prefs/` |
+| **Firefox Profiles** | `/data/data/org.mozilla.firefox/files/profiles/` |
+| **Firefox Cache** | `/data/data/org.mozilla.firefox/cache/` |
+| **Samsung Preferences** | `/data/data/com.sec.android.app.sbrowser/shared_prefs/` |
+| **UC Browser Data** | `/sdcard/Android/data/com.UCMobile.intl/` |
+| **QQ Browser Data** | `/sdcard/Android/data/com.tencent.mtt/` |
+
+---
+
+## Android - Additional Paths
+
+### Android Data Partition (Root Required)
+```
+/data/data/                    # All app private data
+/data/dalvik-cache/            # Optimized DEX files
+/data/app/                     # Installed APKs
+/data/system/users/0/         # User-specific data
+/data/user/0/                 # User 0 app data
+/data/user/10/                # User 10 app data (work profile)
+```
+
+### Android External Storage
+```
+/sdcard/Android/data/          # Apps external data
+/sdcard/Android/obb/           # OBB expansion files
+/sdcard/Download/              # Downloads
+/sdcard/Documents/              # Documents
+```
+
+### Chrome Profile Paths
+```
+/data/data/com.android.chrome/app_chrome/Default/
+/data/data/com.android.chrome/app_chrome/Profile 1/
+/data/data/com.android.chrome/app_chrome/Profile 2/
+/data/data/com.android.chrome/app_chrome/Profile 3/
+/data/data/com.android.chrome/app_chrome/Profile 4/
+```
+
+---
+
+## Android - Complete Package Name Reference
+
+| Browser | Package Name |
+|---------|-------------|
+| Chrome | `com.android.chrome` |
+| Chrome Beta | `com.chrome.beta` |
+| Chrome Dev | `com.chrome.dev` |
+| Chrome Canary | `com.chrome.canary` |
+| Firefox | `org.mozilla.firefox` |
+| Firefox Nightly/Fenix | `org.mozilla.fenix` |
+| Firefox Beta | `org.mozilla.firefox_beta` |
+| Firefox Focus | `org.mozilla.focus` |
+| Firefox Klar | `org.mozilla.klar` |
+| Firefox Lite | `org.mozilla.rocket` |
+| Firefox TV | `org.mozilla.tv.firefox` |
+| Brave | `com.brave.browser` |
+| Vivaldi | `com.vivaldi.browser` |
+| Edge | `com.microsoft.emmx` |
+| Opera | `com.opera.browser` |
+| Opera Mini | `com.opera.mini.android` |
+| Opera GX | `com.opera.browser.gx` |
+| Opera Touch | `com.opera.browser.touch` |
+| Samsung Internet | `com.sec.android.app.sbrowser` |
+| DuckDuckGo | `com.duckduckgo.mobile.android` |
+| UC Browser | `com.UCMobile.intl` |
+| UC Browser Mini | `com.ucmobile.browser` |
+| Bromite | `org.bromite.cromite` |
+| Kiwi Browser | `com.kiwibrowser.browser` |
+| Yandex | `com.yandex.browser` |
+| QQ Browser | `com.tencent.mtt` |
+| Sogou Browser | `com.sogou.msa.mrsd` |
+| Baidu Browser | `com.baidu.browser.core` |
+| Maxthon | `com.maxthon.browser` |
+| Avast | `com.avast.android.browser` |
+| AVG | `com.antivirus` |
+| CM Browser | `com.ksmobile.cleandroid` |
+| Ghostery | `com.ghostery.android.dolphin` |
+| Dolphin | `com.dolphin.browser` |
+| Lightning | `acr.browser.lightning` |
+| Mint Browser | `com.mint.browser` |
+| Kiwi Lite | `com.kiwibrowser.lite` |
+| 360 Browser | `com.qihoo.browser` |
+|猎豹 Browser | `com.ijinshan.browser` |
+| CM Security | `com.cleanmaster.security` |
+| BitBrowser | `com.bitbrowser.android` |
+| Aloha Browser | `com.alohamobile.browser` |
+| ALook Browser | `com.alookbrowser.android` |
+| Via Browser | `mark.via.gp` |
+| XBrowser | `com.wKee.browsers` |
+| FOSS Browser | `me.d潇.com` |
+| IceCat | `org.gnu.icecat` |
+| Orbot | `org.torproject.android` |
+
+---
+
+## Android Forensics Quick Reference
+
+### List All Installed Browsers
+```bash
+adb shell pm list packages | grep -E "(chrome|firefox|brave|vivaldi|opera|edge|browser|web)"
+```
+
+### Get Package Info
+```bash
+adb shell dumpsys package com.android.chrome | grep -E "version|dataDir|codePath"
+```
+
+### Pull All Browser Data (Root)
+```bash
+for pkg in com.android.chrome org.mozilla.firefox com.brave.browser com.microsoft.emmx com.vivaldi.browser com.sec.android.app.sbrowser; do
+    adb pull /data/data/$pkg/ ./$pkg/ 2>/dev/null
+done
+```
+
+### List Browser Sessions (If Accessible)
+```bash
+adb shell find /data/data -name "session*" -o -name "Session*" 2>/dev/null | grep -v lib
+```
+
+### Extract Chrome Session (Root)
+```bash
+adb pull /data/data/com.android.chrome/app_chrome/Default/Sessions/ ./sessions/
+```
+
+### Decode Chrome Session Binary
+```python
+import struct
+# Chrome session files are Protocol Buffer based
+# Use chrome-session-parser tools or browser-history library
+```
+
+---
+
+## Cross-Platform Summary
+
+```
+┌────────────────────────────────────────────────────────────────────────────────────┐
+│                                    ANDROID                                          │
+├────────────────────────────────────────────────────────────────────────────────────┤
+│ Chrome           →  /data/data/com.android.chrome/                                  │
+│ Firefox          →  /data/data/org.mozilla.firefox/                                │
+│ Firefox Nightly  →  /data/data/org.mozilla.fenix/                                   │
+│ Firefox Focus   →  /data/data/org.mozilla.focus/                                    │
+│ Brave            →  /data/data/com.brave.browser/                                  │
+│ Vivaldi          →  /data/data/com.vivaldi.browser/                                 │
+│ Edge             →  /data/data/com.microsoft.emmx/                                 │
+│ Opera            →  /data/data/com.opera.browser/                                   │
+│ Opera Mini       →  /data/data/com.opera.mini.android/                             │
+│ Samsung Internet →  /data/data/com.sec.android.app.sbrowser/                       │
+│ DuckDuckGo       →  /data/data/com.duckduckgo.mobile.android/                      │
+│ UC Browser       →  /data/data/com.UCMobile.intl/                                  │
+│ QQ Browser       →  /data/data/com.tencent.mtt/                                    │
+│ Bromite          →  /data/data/org.bromite.cromite/                                │
+│ Kiwi Browser     →  /data/data/com.kiwibrowser.browser/                            │
+│ Yandex           →  /data/data/com.yandex.browser/                                  │
+│ Maxthon          →  /data/data/com.maxthon.browser/                                 │
+│ Dolphin          →  /data/data/com.dolphin.browser/                                │
+│ Lightning        →  /data/data/acr.browser.lightning/                               │
+├────────────────────────────────────────────────────────────────────────────────────┤
+│ EXTERNAL STORAGE (No Root)                                                         │
+├────────────────────────────────────────────────────────────────────────────────────┤
+│ Chrome           →  /sdcard/Android/data/com.android.chrome/                      │
+│ Firefox          →  /sdcard/Android/data/org.mozilla.firefox/                      │
+│ Brave            →  /sdcard/Android/data/com.brave.browser/                        │
+│ Vivaldi          →  /sdcard/Android/data/com.vivaldi.browser/                      │
+│ UC Browser       →  /sdcard/Android/data/com.UCMobile.intl/                        │
+│ QQ Browser       →  /sdcard/Android/data/com.tencent.mtt/                          │
+└────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Notes
+
+- **Root Required**: Most `/data/data/` paths require root access
+- **No Root Alternative**: Use ADB backup, Shizuku, or Swift Backup
+- **Chrome Data**: Often encrypted on modern Android (Android 10+)
+- **Firefox**: Session files may be in profile directory under `files/profiles/`
+- **Samsung**: Stores session data in `files/pml/Sessions/`
+- **Multi-User**: Android 4.4+ supports multiple users under `/data/user/`
+- **Work Profile**: Browser data may be in `/data/user/10/` (work profile)
+
+---
+
+*Generated for Browser Forensics & Session Analysis - Linux, Windows & Android*
