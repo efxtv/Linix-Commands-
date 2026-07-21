@@ -75,7 +75,6 @@ Ask the admin to join our exclusive private Linux classes
 
 **Support the Project**  
 ❤️ Donations help us create more high-quality Linux content
-*<a href="https://buymeacoffee.com/efxtv" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>*
 
 ---
 
@@ -92,5 +91,9 @@ Ask the admin to join our exclusive private Linux classes
 This project is open source. Feel free to use, share, and contribute.
 
 ---
+--- 
+[JOIN FOR LIVE CLASSES AND SUPPORT](https://t.me/efxtv) 
+
+[![Buy Me A Coffee](https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&emoji=&slug=efxtv&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff)](https://buymeacoffee.com/efxtv)
 
 *Last Updated: July 2026*
